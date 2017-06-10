@@ -8,8 +8,10 @@ import qualified Data.Text.Lazy          as DTL
 import qualified Data.Text.Lazy.Encoding as DTLE
 import           Dhall
 
+
+import qualified TodayTodo.Api           as Api
 import           TodayTodo.Database.Init
-import           TodayTodo.Types.Server
+import           TodayTodo.Types.TodoServer
 
 main :: IO ()
 main = do
@@ -26,6 +28,7 @@ main = do
 
     pool <- createPool (toStrict $ DTLE.encodeUtf8 connStr) 20 900
 
-    let s    = Server pool c
+    let s    = TodoServer pool c
 
-    print c
+    initDev s
+    Api.startApp s

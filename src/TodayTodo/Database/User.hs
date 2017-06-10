@@ -39,7 +39,8 @@ import           TodayTodo.Types.Database.User
 
 userTable :: Table UserWriteColumn UserReadColumn
 userTable = Table "user" (pUser User { uId                     = optional "id"
-                                     , uUsername               = required "username"
+                                     , uEmail                  = required "email"
+                                     , uDisplayName            = required "display_name"
                                      , uPassword               = required "password"
                                      , uNotBefore              = required "not_before"
                                      , uLastLogin              = required "last_login"
@@ -59,11 +60,11 @@ userByIdQuery u = proc () -> do
 
     returnA -< row
 
-userByNameQuery :: Text -> Query UserReadColumn
-userByNameQuery u = proc () -> do
+userByEmailQuery :: Text -> Query UserReadColumn
+userByEmailQuery u = proc () -> do
     row@(User _ name _ _ _ _ _ _) <- userQuery -< ()
 
-    restrictToUserName u -< name
+    restrictToUserEmail u -< name
 
     returnA -< row
 
@@ -71,8 +72,8 @@ restrictToUserId :: Int64 -> QueryArr (Column PGInt8) ()
 restrictToUserId u = proc user ->
     restrict -< user .== pgInt8 u
 
-restrictToUserName :: Text -> QueryArr (Column PGText) ()
-restrictToUserName u = proc user ->
+restrictToUserEmail :: Text -> QueryArr (Column PGText) ()
+restrictToUserEmail u = proc user ->
     restrict -< user .== pgStrictText u
 
 
@@ -84,8 +85,8 @@ insertUser c User{..} = do
 updateUser :: Connection -> User -> IO Int64
 updateUser c User{..} =
     runUpdate c userTable
-                (\case (User key username password notbefore lastlogin disabled defaultimportance autoraise) ->
-                        User Nothing (pgStrictText uUsername) (pgStrictText uPassword) (pgUTCTime uNotBefore) (maybeToNull $ fmap (toNullable . pgUTCTime) uLastLogin) (pgBool uDisabled) (pgInt4 uTodayDefaultImportance) (pgBool uAutoRaiseUrgency)) -- c (pgUTCTime t) e (pgBool False))
+                (\case (User key email displayname password notbefore lastlogin disabled defaultimportance autoraise) ->
+                        User Nothing (pgStrictText uEmail) (pgStrictText uUsername) (pgStrictText uPassword) (pgUTCTime uNotBefore) (maybeToNull $ fmap (toNullable . pgUTCTime) uLastLogin) (pgBool uDisabled) (pgInt4 uTodayDefaultImportance) (pgBool uAutoRaiseUrgency))
                 (\case (User a _ _ _ _ _ _ _) -> a .== pgInt8 uId)
 
 maybeToNull = fromMaybe null

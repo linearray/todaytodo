@@ -22,9 +22,10 @@ import           Opaleye (Column, Nullable, matchNullable, isNull,
                           PGInt4, PGInt8, PGText, PGDate, PGFloat8, PGBool,
                           PGTimestamptz)
 
-data User' key user pass notbefore login disabled defaultimp autoraiseurg = User {
+data User' key email name pass notbefore login disabled defaultimp autoraiseurg = User {
     uId                       :: key,
-    uUsername                 :: user,
+    uEmail                    :: email,
+    uDisplayName              :: name,
     uPassword                 :: pass,
     uNotBefore                :: notbefore,
     uLastLogin                :: login,
@@ -34,8 +35,8 @@ data User' key user pass notbefore login disabled defaultimp autoraiseurg = User
                                                   -- according to what our patented artificial intelligence model thinks is best?
 }
 
-type User            = User' Int64 Text Text UTCTime (Maybe UTCTime) Bool Int Bool
-type UserReadColumn  = User' (Column PGInt8)         (Column PGText) (Column PGText) (Column PGTimestamptz) (Column (Nullable PGTimestamptz)) (Column PGBool) (Column PGInt4) (Column PGBool)
-type UserWriteColumn = User' (Maybe (Column PGInt8)) (Column PGText) (Column PGText) (Column PGTimestamptz) (Column (Nullable PGTimestamptz)) (Column PGBool) (Column PGInt4) (Column PGBool)
+type User            = User' Int64 Text Text Text UTCTime (Maybe UTCTime) Bool Int Bool
+type UserReadColumn  = User' (Column PGInt8)         (Column PGText) (Column PGText) (Column PGText) (Column PGTimestamptz) (Column (Nullable PGTimestamptz)) (Column PGBool) (Column PGInt4) (Column PGBool)
+type UserWriteColumn = User' (Maybe (Column PGInt8)) (Column PGText) (Column PGText) (Column PGText) (Column PGTimestamptz) (Column (Nullable PGTimestamptz)) (Column PGBool) (Column PGInt4) (Column PGBool)
 
 $(makeAdaptorAndInstance "pUser" ''User')
